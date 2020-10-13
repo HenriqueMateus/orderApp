@@ -1,63 +1,97 @@
 import Head from 'next/head'
+import { useState, useEffect } from 'react'
+import insetion from '../modules/insertion'
+import bubble from '../modules/bubble'
+import calculoTempoExecucao from '../modules/tempoExecucao'
+import selection from '../modules/selection'
+import bucketSort from '../modules/bucket'
 
 export default function Home() {
+  const [resultado, setResultado] = useState({tempoExecucao: 0.00, vetorOrdenado: [0,0,0,0]})
+  const [ordenacao, setOrdenacao] = useState(' ')
+  const [vetor, setVetor] = useState([])
+  const [contador, setContador] = useState(0)
+  useEffect(() => { }, [resultado, ordenacao, vetor])
+  const handleChange = (event) => {
+    event.preventDefault();
+    let vet = event.target.value.split(',')
+    setVetor(vet)
+  }
+  
+  function ordenar() {
+    const registroOrdenacao = ordenacao
+    const registroVetor = vetor
+    const registroResultado = {}
+    const vetorInt = registroVetor.map(element => {
+      let intpar = parseInt(element)
+      return intpar
+    });
+    let vetorOrder = []
+    let inicio
+    let resultadoTemp = '';
+    if (registroOrdenacao === 'insetion') {
+      let {resultado, tempoGasto} = calculoTempoExecucao({func:()=> insetion(vetorInt)})
+      vetorOrder = resultado
+      resultadoTemp = tempoGasto
+    } else if (registroOrdenacao === 'bubble'){
+      let {resultado, tempoGasto} = calculoTempoExecucao({func:()=>bubble(vetorInt)})
+      vetorOrder = resultado
+      resultadoTemp = tempoGasto
+    } else if (registroOrdenacao === 'selection'){
+      let {resultado, tempoGasto} = calculoTempoExecucao({func:()=> selection(vetorInt)})
+      vetorOrder = resultado
+      resultadoTemp = tempoGasto
+    } else if (registroOrdenacao === 'bucket'){
+      let {resultado, tempoGasto} = calculoTempoExecucao({func:()=> bucketSort(vetorInt)})
+      vetorOrder = resultado
+      resultadoTemp = tempoGasto
+    }
+    let vetorOrdenadoStr = ''
+    for(let i = 0; i< vetorOrder.length; i++){
+      if(i != vetorOrder.length-1) vetorOrdenadoStr += vetorInt[i] + ','
+      else{
+        vetorOrdenadoStr += vetorInt[i]
+      }
+    }
+    console.log(resultadoTemp)
+    registroResultado.tempoExecucao = resultadoTemp
+    registroResultado.vetorOrdenado = vetorOrdenadoStr
+    console.log(registroResultado)
+    setResultado(registroResultado)
+
+  }
   return (
     <div className="container">
       <Head>
-        <title>Create Next App</title>
+        <title>Ordenação</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main>
-        <h1 className="title">
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
+        <br />
 
-        <p className="description">
-          Get started by editing <code>pages/index.js</code>
-        </p>
+        <label htmlfor="vetor">Conjunto de Numeros</label>
+        <input type="text" onChange={(event) => handleChange(event)}></input>
 
-        <div className="grid">
-          <a href="https://nextjs.org/docs" className="card">
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
+        <label>
+          Escolha o metodo de ordenacao:
+          <select value={ordenacao} onChange={(event) => setOrdenacao(event.target.value)}>
+            <option selected="selected"> </option>
+            <option value="insetion">Insetion</option>
+            <option value="bubble">Bubble</option>
+            <option value="selection">Selection</option>
+            <option value="bucket">Bucket</option>
+          </select>
+        </label>
 
-          <a href="https://nextjs.org/learn" className="card">
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
+        <button onClick={ordenar}>ordenar</button>
 
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className="card"
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
 
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className="card"
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
+        < br />
+        <p>Resultado:[{resultado.vetorOrdenado}] em {resultado.tempoExecucao}ms</p>
       </main>
 
-      <footer>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className="logo" />
-        </a>
-      </footer>
+
 
       <style jsx>{`
         .container {
