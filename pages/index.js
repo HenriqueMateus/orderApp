@@ -70,7 +70,7 @@ export default function Home() {
       <main>
         <br />
 
-        <label htmlfor="vetor">Conjunto de Numeros</label>
+        <label htmlFor="vetor">Conjunto de Numeros</label>
         <input type="text" onChange={(event) => handleChange(event)}></input>
 
         <label>
